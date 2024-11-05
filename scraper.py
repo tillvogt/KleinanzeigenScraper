@@ -1,11 +1,10 @@
 import time
 import requests
-import logging
 from bs4 import BeautifulSoup
 import re
 
 class WebScraper:
-    def __init__(self, url, blacklist=[], kfz=False):
+    def __init__(self, url, blacklist=[], kfz=False, *args, **kwargs):
         self.url = url
         self.blacklist = blacklist
         self.kfz = kfz
@@ -22,7 +21,7 @@ class WebScraper:
             return article_links
         
         except Exception as e:
-            logging.error(f"Fehler beim Scraping: {str(e)}")
+            print(f"scraper.py: {type(e).__name__} occured on scrape_mainpage():\n {e}")
         
     def scrape_links(self):
         articles = []
@@ -50,7 +49,18 @@ class WebScraper:
                 # Preis Typ
                 price_type = self.scrape_price_type(script_tags)
                 article["price_type"] = price_type
-                # Benutzer Link
+                # time stamp, location
+                viewed_main_info = soup.find("div", id="viewad-main-info")
+                spans = viewed_main_info.find_all("span")
+                for span in spans:
+                    date_pattern = r"\d{2}\.\d{2}\.\d{4}"
+                    date_match = re.search(date_pattern, span.text)
+                    if date_match:
+                        date_str = date_match.group()
+                        article["timestamp"] = date_str
+                            
+                article["location"] = spans[1].get_text().strip()
+                # Benutzer id
                 user_ID = soup.find("div", id="viewad-profile-box").find("a")["href"].strip().split("=")[-1]
                 article["user_ID"] = int(user_ID)
                 # Paused
@@ -74,7 +84,7 @@ class WebScraper:
                     continue
                 
             except Exception as e:
-                logging.error(f"Fehler beim Scraping: {str(e)}")
+                print(f"scraper.py: {type(e).__name__} occured on scrape_links():\n {e}")
                 
             articles.append(article)
             time.sleep(2)
@@ -100,10 +110,12 @@ class WebScraper:
             
             time.sleep(2)
             if any(actual_status): return True  
+        
+        except TypeError:
+            pass
             
         except Exception as e:
-            logging.error(f"Fehler beim Checking: {str(e)}")
-        
+            print(f"scraper.py: {type(e).__name__} occured on check_article():\n {e}")
                 
     def scrape_milage(self, soup):
         li_elements = soup.find_all('li')
