@@ -107,9 +107,13 @@ After starting the Webserver, there are different utilities available.
 
 Selecting the Scraper Configuration window, you have the oppotunity for editing the `traced_objects.json`. The suraface is self-declaring...
 
+![Logo](/visualizer.png) 
+
 ### Visualizing Data
 
 In this Tab you're able to choose one of the traced objects, plot the corresponding stats. Below the plot are the most important statistical measures listed.
+
+![Logo](/config.png) 
 
 ## Notes
 
